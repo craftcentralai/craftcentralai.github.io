@@ -29,9 +29,6 @@
 	<body>
 
 		<div id="info">
-			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> car materials demo :
-			Ferrari 458<a href="https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6" target="_blank" rel="noopener">Model</a>
-			<br><br>
 			<span>Body: <select id="body-mat"></select></span>
 			<span>Rims / Trim: <select id="rim-mat"></select></span>
 			<span>Glass: <select id="glass-mat"></select></span>
@@ -82,7 +79,7 @@
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
 				envMap = new THREE.CubeTextureLoader()
-					.setPath( 'textures/cube/skyboxsun25deg/')
+					.setPath( '../textures/cube/skyboxsun25deg/')
 					.load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
 				scene.background = envMap;
 				var ground = new THREE.Mesh(
