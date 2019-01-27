@@ -35,11 +35,12 @@
 			<span>Rims / Trim: <select id="rim-mat"></select></span>
 			<span>Glass: <select id="glass-mat"></select></span>
 			<br><br>
-			<span>Follow camera: <input type="checkbox" id="camera-toggle"></span>
+			<span>Follow camera: <input type="checkbox" id="camera-toggle" checked></span>
 		</div>
 
 		<div id="container"></div>
 
+                <script src="../js/controls/OrbitControls.js"></script>
 		<script src="../js/loaders/DRACOLoader.js"></script>
 		<script src="../js/loaders/GLTFLoader.js"></script>
 
@@ -62,6 +63,7 @@
 			var lightHolder = new THREE.Group();
 			var clock = new THREE.Clock();
 			var car = new THREE.Car();
+                        car.speed = 5;
 			car.turningRadius = 75;
 			var carParts = {
 				body: [],
