@@ -41,7 +41,7 @@
 
 		<div id="container"></div>
 
-		<script src="../mini_three.js"></script>
+		<script src="../three.js"></script>
 
 		<script src="../js/loaders/DRACOLoader.js"></script>
 		<script src="../js/loaders/GLTFLoader.js"></script>
@@ -131,10 +131,10 @@
 				} );
 			}
 			function initCar() {
-				THREE.DRACOLoader.setDecoderPath( 'js/libs/draco/gltf/' );
+				THREE.DRACOLoader.setDecoderPath( '../js/libs/draco/gltf/' );
 				var loader = new THREE.GLTFLoader();
 				loader.setDRACOLoader( new THREE.DRACOLoader() );
-				loader.load( 'models/gltf/ferrari.glb', function( gltf ) {
+				loader.load( '../models/gltf/ferrari.glb', function( gltf ) {
 					carModel = gltf.scene.children[ 0 ];
 					// add lightHolder to car so that the shadow will track the car as it moves
 					carModel.add( lightHolder );
@@ -147,7 +147,7 @@
 						}
 					} );
 					// shadow
-					var texture = new THREE.TextureLoader().load( 'models/gltf/ferrari_ao.png' );
+					var texture = new THREE.TextureLoader().load( '../models/gltf/ferrari_ao.png' );
 					var shadow = new THREE.Mesh(
 						new THREE.PlaneBufferGeometry( 0.655 * 4, 1.3 * 4 ).rotateX( - Math.PI / 2 ),
 						new THREE.MeshBasicMaterial( { map: texture, opacity: 0.8, transparent: true } )
