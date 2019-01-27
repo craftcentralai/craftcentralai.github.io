@@ -27,9 +27,11 @@
 	</head>
 
 	<body>
+                <script src="../mini_three.js"></script>
+
 		<div id="info">
 			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> car materials demo :
-			Ferrari 458<a href="https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6" target="_blank" rel="noopener"></a>
+			Ferrari 458<a href="https://sketchfab.com/models/57bf6cc56931426e87494f554df1dab6" target="_blank" rel="noopener">Model</a>
 			<br><br>
 			<span>Body: <select id="body-mat"></select></span>
 			<span>Rims / Trim: <select id="rim-mat"></select></span>
@@ -39,8 +41,6 @@
 		</div>
 
 		<div id="container"></div>
-
-		<script src="../mini_three.js"></script>
 
 		<script>
 			if ( WEBGL.isWebGLAvailable() === false ) {
