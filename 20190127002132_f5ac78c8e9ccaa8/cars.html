@@ -63,7 +63,7 @@
 			var lightHolder = new THREE.Group();
 			var clock = new THREE.Clock();
 			var car = new THREE.Car();
-                        car.speed = 5;
+                        car.speed = 10;
 			car.turningRadius = 75;
 			var carParts = {
 				body: [],
@@ -77,11 +77,11 @@
 			function init() {
 				var container = document.getElementById( 'container' );
 				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 200 );
-				camera.position.set( 3.25, 2.0, -5 );
+				camera.position.set( 13.25, 20.0, -5 );
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
 				envMap = new THREE.CubeTextureLoader()
-					.setPath( '../textures/cube/skyboxsun25deg/')
+					.setPath( '../textures/cube/SwedishRoyalCastle/')
 					.load( [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ] );
 				scene.background = envMap;
 				var ground = new THREE.Mesh(
