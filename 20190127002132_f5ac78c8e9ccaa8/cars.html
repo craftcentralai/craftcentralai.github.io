@@ -35,7 +35,7 @@
 			<span>Rims / Trim: <select id="rim-mat"></select></span>
 			<span>Glass: <select id="glass-mat"></select></span>
 			<br><br>
-			<span>Follow camera: <input type="checkbox" id="camera-toggle" checked></span>
+			<span>Follow camera: <input type="checkbox" id="camera-toggle"></span>
 		</div>
 
 		<div id="container"></div>
@@ -54,7 +54,7 @@
 			if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 			}
-			var camera, scene, renderer, stats, carModel, materialsLib, envMap;
+			var controls, camera, scene, renderer, stats, carModel, materialsLib, envMap;
 			var bodyMatSelect = document.getElementById( 'body-mat' );
 			var rimMatSelect = document.getElementById( 'rim-mat' );
 			var glassMatSelect = document.getElementById( 'glass-mat' );
@@ -78,6 +78,9 @@
 				var container = document.getElementById( 'container' );
 				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 200 );
 				camera.position.set( 13.25, 20.0, -5 );
+                                controls = new THREE.OrbitControls( camera );
+                                controls.update();
+
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
 				envMap = new THREE.CubeTextureLoader()
@@ -126,6 +129,7 @@
 				window.addEventListener( 'resize', onWindowResize, false );
 				renderer.setAnimationLoop( function() {
 					update();
+                                         
 					renderer.render( scene, camera );
 				} );
 			}
@@ -227,6 +231,7 @@
 			function update() {
 				var delta = clock.getDelta();
 				if ( carModel ) {
+                                        controls.update();
 					car.update( delta / 3 );
 					resetPosition();
 					// keep the light (and shadow) pointing in the same direction as the car rotates
