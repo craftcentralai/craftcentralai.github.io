@@ -54,7 +54,7 @@
 			if ( WEBGL.isWebGLAvailable() === false ) {
 				document.body.appendChild( WEBGL.getWebGLErrorMessage() );
 			}
-			var controls, camera, scene, renderer, stats, carModel, materialsLib, envMap;
+			var camera, scene, renderer, stats, carModel, materialsLib, envMap;
 			var bodyMatSelect = document.getElementById( 'body-mat' );
 			var rimMatSelect = document.getElementById( 'rim-mat' );
 			var glassMatSelect = document.getElementById( 'glass-mat' );
@@ -78,8 +78,8 @@
 				var container = document.getElementById( 'container' );
 				camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 200 );
 				camera.position.set( 13.25, 20.0, -5 );
-                                controls = new THREE.OrbitControls( camera );
-                                controls.update();
+                                //controls = new THREE.OrbitControls( camera );
+                                //controls.update();
 
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0xd7cbb1, 1, 80 );
@@ -231,7 +231,6 @@
 			function update() {
 				var delta = clock.getDelta();
 				if ( carModel ) {
-                                        controls.update();
 					car.update( delta / 3 );
 					resetPosition();
 					// keep the light (and shadow) pointing in the same direction as the car rotates
