@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        .node {}
+        .link { stroke: #999; stroke-opacity:1; stroke-width: 1px; }
+    </style>
+</head>
+<body>
+
+
+<script src="http://d3js.org/d3.v4.min.js" type="text/javascript"></script>
+<script src="http://d3js.org/d3-selection-multi.v1.js"></script>
+
+<script type="text/javascript">
+    // Reference: http://bl.ocks.org/fancellu/2c782394602a93921faff74e594d1bb1
+    var colors = d3.scaleOrdinal(d3.schemeCategory10);
+    var width = 960;
+    var height = 600;
+    var node, link,nodesData;
+
+    var svg = d3.select("body").append("svg")
+      .attr("width", width)
+      .attr("height", height);
+
+    // Background rect
+    svg.append("rect")
+        .attrs({ "width": width , "height": height,"fill":"white"})
+        .on("click",backgroundOnClick);
+   
+    // INFO rect
+    var infoWidth = width/4.5;
+    var infoHeight = height/10;
+    svg.append("rect")
+       .attrs({"width": infoWidth , "height": infoHeight,"x":width/5, "y":height/5,"fill":"LightGray","opacity":0.3})
+
+    svg.append("text")
+       .text("INFO")
+       .attrs({
+                "x":width/5 + infoWidth/10 , 
+                "y":height/5 + infoHeight/3,
+                'id': 'info-text',
+                'font-size': 10,
+                'fill': '#aaa'
+            });
+
+    svg.append('defs').append('marker')
+        .attrs({'id':'arrowhead',
+            'viewBox':'0 -5 10 10',
+            'refX':0,
+            'refY':0,
+            'orient':'auto',
+            'markerWidth':8,
+            'markerHeight':8,
+            'xoverflow':'visible'})
+        .append('svg:path')
+        .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+        .attr('fill', '#999')
+        .style('stroke','none');
+
+    var simulation = d3.forceSimulation()
+        .force("link", d3.forceLink().id(function (d) {return d.id;}).distance(100).strength(1))
+        .force("charge", d3.forceManyBody())
+        .force("center", d3.forceCenter(width / 2, height / 2));
+
+    d3.json("graph.json", function (error, graph) {
+        if (error) throw error;
+        nodeData = graph.nodes;
+        update(graph.links, graph.nodes);
+    })
+
+    function update(links, nodes) {
+
+        link = svg.selectAll(".link")
+            .data(links)
+            .enter()
+            .append("line")
+            .attr("class", function (d) {
+                    ids = [d.source, d.target].sort();
+                    id = ids[0].toString() + ids[1].toString();
+                    return "link link-" + id})
+            .attr('marker-end','url(#arrowhead)')
+            .style("stroke-opacity", 1)
+            .on("click", edgeOnClick)
+            .on("mouseover", edgeOnMouseover)
+            .on("mouseout",edgeOnMouseout)
+
+        linkHidden = svg.selectAll(".link-hidden")
+            .data(links)
+            .enter()
+            .append("line")
+            .attr("class", function (d) {
+                    ids = [d.source, d.target].sort();
+                    id = ids[0].toString() + ids[1].toString();
+                    return "link-hidden link-" + id})
+            .style("stroke-opacity", 0)
+            .style("stroke", "#ccc")
+            .style("stroke-width", 4)
+            .on("click", edgeOnClick)
+
+        node = svg.selectAll(".node")
+            .data(nodes)
+            .enter()
+            .append("g")
+            .attr("class", "node")
+            .on("click", nodeOnClick)
+            .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended)
+            );
+
+       
+        node.append("image")
+            .attr("xlink:href", function (d) {return d.profile_image_url;})
+            .attr("x", -8)
+            .attr("y", -8)
+            .attr("width", 16)
+            .attr("height", 16)
+        
+        simulation
+            .nodes(nodes)
+            .on("tick", ticked);
+
+        simulation.force("link")
+            .links(links);
+    }
+
+    // Calculate how far the arrow should stay around the node
+    function calculateDeltaAroundNode(d, radius){
+        var yDiff = d.target.y - d.source.y;
+        var xDiff = d.target.x - d.source.x;
+        var h = Math.sqrt(xDiff**2 + yDiff**2);
+        //Finally return x1Delta y1Delta x2Delta y2Delta 
+        return [xDiff* radius/ h,yDiff* radius/ h,-xDiff* radius/ h,-yDiff* radius/ h]
+    }
+
+    
+    function ticked() {
+        
+        link
+            .attr("x1", function (d) {return calculateDeltaAroundNode(d,20)[0] + d.source.x;})
+            .attr("y1", function (d) {return calculateDeltaAroundNode(d,20)[1] + d.source.y;})
+            .attr("x2", function (d) {return calculateDeltaAroundNode(d,20)[2] + d.target.x;})
+            .attr("y2", function (d) {return calculateDeltaAroundNode(d,20)[3] + d.target.y;});
+
+        linkHidden
+            .attr("x1", function (d) {return calculateDeltaAroundNode(d,20)[0] + d.source.x;})
+            .attr("y1", function (d) {return calculateDeltaAroundNode(d,20)[1] + d.source.y;})
+            .attr("x2", function (d) {return calculateDeltaAroundNode(d,20)[2] + d.target.x;})
+            .attr("y2", function (d) {return calculateDeltaAroundNode(d,20)[3] + d.target.y;});
+        node
+            .attr("transform", function (d) {return "translate(" + d.x + ", " + d.y + ")";});
+
+    }
+
+    function nodeOnClick(d, i){
+        // Specify where to put label of text
+        var curElem = d3.select(this);
+        var selected = curElem.classed("node-selected");
+        
+        if(!selected){
+            curElem.classed("node-selected",true);
+           
+            // Enlarge the image
+            curElem.select("image").transition().duration(750).attr(
+                "transform", function (d) {return "scale(" + 2 + ", " + 2 + ")"} 
+            );
+            // Specify where to put label of text
+            curElem.append("text").attrs({
+                class: "node-text",  // Create an id for text so we can select it later for removing on mouseout
+                id:"node-text"+i,
+                x:+20,
+                y:0
+                })
+                .style("pointer-events", "none")
+                .text(function() {
+                    return d.screen_name;  // Value of the text
+                })
+                .attr("fill","#999")
+                .attr("opacity", 0)
+                .transition()
+                .duration(750)
+                .attr("opacity", 1);
+        }else{
+            curElem.classed("node-selected",false);
+            curElem.attrs({
+                selected:"false"
+            })
+            curElem.select("image").transition().duration(750).attr(
+                "transform", function () {return "scale(" + 1 + ", " + 1 + ")"} 
+            );
+            d3.selectAll("#node-text"+i)
+              .attr("opacity", 1)
+              .transition()
+              .duration(750)
+              .attr("opacity", 0)
+              .remove();
+        }
+          
+    }
+
+    function edgeOnClick(d,i){
+        var curElem = d3.select(this);
+        var x_val = (parseFloat(curElem.attr("x1")) + parseFloat(curElem.attr("x2")))/2
+        var y_val = (parseFloat(curElem.attr("y1")) + parseFloat(curElem.attr("y2")))/2
+        var info = ["INFO"]
+        var lineSpace = 15;
+        var x_text = width/5 + infoWidth/10;
+        var y_text = height/5 + infoHeight/3;
+        
+        info.push(d.source.screen_name+" "+d.type+" "+d.target.screen_name);
+       
+        var infoText = svg.selectAll(".info-text")
+          .data(info)
+
+        infoText.exit().remove();
+        infoText.enter()
+          .append("text")
+          .merge(infoText)
+          .text(
+           function (d){
+               return d
+           })
+           .attrs({
+               "x":function (d,i) { return x_text} , 
+               "y":function (d,i) { return y_text+i*lineSpace},
+               "class": "info-text",
+               "font-size": 10,
+               "fill": "#aaa"
+           })
+           .attr("opacity", 0)
+           .transition()
+           .duration(750)
+           .attr("opacity", 1);
+        
+     
+    }
+
+    function edgeOnMouseover(){
+        var curElem = d3.select(this);
+        curElem.transition().duration(400).style("stroke-width",2);
+    }
+
+    function edgeOnMouseout(){
+        var curElem = d3.select(this);
+        curElem.transition().duration(400).style("stroke-width",1);
+    }
+
+    function backgroundOnClick(){
+
+        // Reset node size and node text
+        var nodeSelected = d3.selectAll(".node-selected");
+        
+        d3.selectAll(".node-text")
+          .attr("opacity", 1)
+          .transition()
+          .duration(750)
+          .attr("opacity", 0)
+          .remove();
+        d3.selectAll(".info-text")
+          .attr("opacity", 1)
+          .transition()
+          .duration(750)
+          .attr("opacity", 0)
+          .remove();
+        nodeSelected.classed("node-selected",false);
+        nodeSelected.select("image").transition().duration(750).attr("transform", function () {return "scale(" + 1 + ", " + 1 + ")"})
+        
+    }
+
+    function dragstarted(d) {
+        if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+        d.fx = d.x;
+        d.fy = d.y;
+    }
+
+    function dragged(d) {
+        d.fx = d3.event.x;
+        d.fy = d3.event.y;
+    }
+
+   function dragended(d) {
+       if (!d3.event.active) simulation.alphaTarget(0);
+       d.fx = undefined;
+       d.fy = undefined;
+   }
+
+</script>
+
+</body>
+</html>
